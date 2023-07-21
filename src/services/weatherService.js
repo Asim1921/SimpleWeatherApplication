@@ -1,6 +1,6 @@
 import { DateTime } from "luxon";
 
-const API_KEY = "ENTER YOUR API KEY";
+const API_KEY = "0c37394da85e60adad0ec99ebe40d842";
 const BASE_URL = "https://api.openweathermap.org/data/2.5";
 
 // https://api.openweathermap.org/data/2.5/onecall?lat=48.8534&lon=2.3488&exclude=current,minutely,hourly,alerts&appid=1fa9ff4126d95b8db54f3897a208e91c&units=metric
@@ -43,44 +43,67 @@ const formatCurrentWeather = (data) => {
     speed,
   };
 };
-
 const formatForecastWeather = (data) => {
-  let { timezone, daily, hourly } = data;
-  daily = daily.slice(1, 6).map((d) => {
-    return {
-      title: formatToLocalTime(d.dt, timezone, "ccc"),
-      temp: d.temp.day,
-      icon: d.weather[0].icon,
-    };
-  });
+  let timezone, daily, hourly;
 
-  hourly = hourly.slice(1, 6).map((d) => {
-    return {
-      title: formatToLocalTime(d.dt, timezone, "hh:mm a"),
-      temp: d.temp,
-      icon: d.weather[0].icon,
-    };
-  });
+  if (data.timezone) {
+    timezone = data.timezone;
+  }
+
+  // Check if daily forecast is available
+  if (data.daily && Array.isArray(data.daily) && data.daily.length >= 6) {
+    daily = data.daily.slice(1, 6).map((d) => {
+      const title = d.dt ? formatToLocalTime(d.dt, timezone, "ccc") : "";
+      const temp = d.temp ? d.temp.day : "";
+      const icon = d.weather && d.weather[0] ? d.weather[0].icon : "";
+      return { title, temp, icon };
+    });
+  } else {
+    daily = [];
+  }
+
+  // Check if hourly forecast is available
+  if (data.hourly && Array.isArray(data.hourly) && data.hourly.length >= 6) {
+    hourly = data.hourly.slice(1, 6).map((d) => {
+      const title = d.dt ? formatToLocalTime(d.dt, timezone, "hh:mm a") : "";
+      const temp = d.temp ? d.temp : "";
+      const icon = d.weather && d.weather[0] ? d.weather[0].icon : "";
+      return { title, temp, icon };
+    });
+  } else {
+    hourly = [];
+  }
 
   return { timezone, daily, hourly };
 };
 
 const getFormattedWeatherData = async (searchParams) => {
-  const formattedCurrentWeather = await getWeatherData(
-    "weather",
-    searchParams
-  ).then(formatCurrentWeather);
+  try {
+    const formattedCurrentWeather = await getWeatherData(
+      "weather",
+      searchParams
+    ).then(formatCurrentWeather);
 
-  const { lat, lon } = formattedCurrentWeather;
+    const { lat, lon } = formattedCurrentWeather;
 
-  const formattedForecastWeather = await getWeatherData("onecall", {
-    lat,
-    lon,
-    exclude: "current,minutely,alerts",
-    units: searchParams.units,
-  }).then(formatForecastWeather);
+    const formattedForecastWeather = await getWeatherData("onecall", {
+      lat,
+      lon,
+      exclude: "current,minutely,alerts",
+      units: searchParams.units,
+    });
 
-  return { ...formattedCurrentWeather, ...formattedForecastWeather };
+    console.log("API Response:", formattedForecastWeather); // Add this console log
+
+    const formattedData = formatForecastWeather(formattedForecastWeather);
+
+    console.log("Formatted Weather Data:", formattedData); // Add this console log
+
+    return { ...formattedCurrentWeather, ...formattedData };
+  } catch (error) {
+    console.error("Error fetching weather data:", error);
+    throw error;
+  }
 };
 
 const formatToLocalTime = (

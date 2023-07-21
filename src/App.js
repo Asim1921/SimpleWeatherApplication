@@ -10,7 +10,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 function App() {
-  const [query, setQuery] = useState({ q: "berlin" });
+  const [query, setQuery] = useState({ q: "islamabad" });
   const [units, setUnits] = useState("metric");
   const [weather, setWeather] = useState(null);
 
@@ -20,20 +20,24 @@ function App() {
 
       toast.info("Fetching weather for " + message);
 
-      await getFormattedWeatherData({ ...query, units }).then((data) => {
+      try {
+        const data = await getFormattedWeatherData({ ...query, units });
         toast.success(
           `Successfully fetched weather for ${data.name}, ${data.country}.`
         );
 
         setWeather(data);
-      });
+      } catch (error) {
+        console.error("Error fetching weather data:", error);
+        toast.error("Error fetching weather data. Please try again later.");
+      }
     };
 
     fetchWeather();
   }, [query, units]);
 
   const formatBackground = () => {
-    if (!weather) return "from-cyan-700 to-blue-700";
+    if (!weather || !weather.temp) return "from-cyan-700 to-blue-700 ";
     const threshold = units === "metric" ? 20 : 60;
     if (weather.temp <= threshold) return "from-cyan-700 to-blue-700";
 
@@ -44,22 +48,26 @@ function App() {
     <div
       className={`mx-auto max-w-screen-md mt-4 py-5 px-32 bg-gradient-to-br  h-fit shadow-xl shadow-gray-400 ${formatBackground()}`}
     >
+      <div className="heading">My Weather Application</div>
       <TopButtons setQuery={setQuery} />
       <Inputs setQuery={setQuery} units={units} setUnits={setUnits} />
-
       {weather && (
         <div>
           <TimeAndLocation weather={weather} />
           <TemperatureAndDetails weather={weather} />
 
-          <Forecast title="hourly forecast" items={weather.hourly} />
-          <Forecast title="daily forecast" items={weather.daily} />
+          {weather.hourly && (
+            <Forecast title="Hourly Forecast" items={weather.hourly} />
+          )}
+          {weather.daily && (
+            <Forecast title="Daily Forecast" items={weather.daily} />
+          )}
         </div>
       )}
-
       <ToastContainer autoClose={5000} theme="colored" newestOnTop={true} />
     </div>
   );
 }
+
 
 export default App;

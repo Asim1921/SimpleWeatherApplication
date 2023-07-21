@@ -1,3 +1,9 @@
+body {
+  background-image: url(/src/img/minimal-landscape-k-wallpaper.png);
+  margin: 0;
+  padding: 0;
+}
+
 .App {
   text-align: center;
 }
@@ -20,12 +26,20 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  font-size: calc(
+    14px + 2vmin
+  ); /* Increased font size for better readability */
+  color: #fff; /* Changed text color to white */
 }
 
 .App-link {
-  color: #61dafb;
+  color: #560d81;
+  text-decoration: none;
+  transition: color 0.3s ease-in-out; /* Added smooth color transition on hover */
+}
+
+.App-link:hover {
+  color: #fff; /* Changed link color on hover */
 }
 
 @keyframes App-logo-spin {
@@ -35,4 +49,11 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.heading {
+  text-align: center;
+  color: wheat;
+  font-size: 30px;
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
 }
