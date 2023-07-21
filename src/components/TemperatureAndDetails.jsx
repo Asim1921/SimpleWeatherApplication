@@ -1,3 +1,5 @@
+// module for getting the temperature and its Details
+
 import React from "react";
 import {
   UilTemperature,
