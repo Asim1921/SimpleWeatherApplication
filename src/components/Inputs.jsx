@@ -1,3 +1,5 @@
+// input.jsx file to take input from the user
+
 import React, { useState } from "react";
 import { UilSearch, UilLocationPoint } from "@iconscout/react-unicons";
 import { toast } from "react-toastify";
