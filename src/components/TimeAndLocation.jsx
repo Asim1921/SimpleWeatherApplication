@@ -1,3 +1,5 @@
+// module to get the time and the Location
+
 import React from "react";
 import { formatToLocalTime } from "../services/weatherService";
 
